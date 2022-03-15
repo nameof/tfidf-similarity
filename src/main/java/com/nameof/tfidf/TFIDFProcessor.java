@@ -8,7 +8,7 @@ import java.io.File;
 import java.util.List;
 import java.util.Set;
 
-public interface TfIdfProcessor {
+public interface TFIDFProcessor {
     Document analyze(String docName, File...corpusFile);
 
     Set<Keyword> keyword(String docName, File...corpusFile);

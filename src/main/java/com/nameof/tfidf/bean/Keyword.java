@@ -6,7 +6,7 @@ import java.util.Objects;
 
 @Data
 public class Keyword {
-    private String word;
+    private String term;
     private double weight;
 
     @Override
@@ -14,11 +14,11 @@ public class Keyword {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Keyword keyword = (Keyword) o;
-        return word.equals(keyword.word);
+        return term.equals(keyword.term);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(word);
+        return Objects.hash(term);
     }
 }
