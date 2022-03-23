@@ -1,10 +1,14 @@
 package com.nameof.tfidf.bean;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Objects;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Keyword {
     private String term;
     private double weight;
