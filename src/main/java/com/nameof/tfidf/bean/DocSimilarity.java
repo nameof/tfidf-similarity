@@ -7,8 +7,13 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class DocSimilarity {
+public class DocSimilarity implements Comparable<DocSimilarity> {
     private Document first;
     private Document second;
     private double score;
+
+    @Override
+    public int compareTo(DocSimilarity o) {
+        return Double.compare(score, o.getScore());
+    }
 }

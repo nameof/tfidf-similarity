@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Set;
 
 public interface TFIDFProcessor {
+    List<Document> analyzeAll(File...corpusFile);
+
     Document analyze(String docName, File...corpusFile);
 
     Set<Keyword> keyword(String docName, File...corpusFile);
