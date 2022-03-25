@@ -1,6 +1,7 @@
 package com.nameof.tfidf;
 
 import cn.hutool.core.io.FileUtil;
+import com.google.common.base.Preconditions;
 import com.nameof.tfidf.bean.DocSimilarity;
 import com.nameof.tfidf.bean.Document;
 import com.nameof.tfidf.bean.Keyword;
@@ -68,7 +69,7 @@ public class DefaultTFIDFProcessor implements TFIDFProcessor {
 
         List<Document> documentList = new ArrayList<>(corpus.size());
         for (Map.Entry<String, String> entry : corpus.entrySet()) {
-            Document document = new Document(entry.getKey(), textProcessor.segment(entry.getValue()), new HashSet<>());
+            Document document = new Document(entry.getKey(), entry.getValue(), textProcessor.segment(entry.getValue()), new HashSet<>());
             documentList.add(document);
         }
         return documentList;
@@ -94,14 +95,21 @@ public class DefaultTFIDFProcessor implements TFIDFProcessor {
 
     @Override
     public List<DocSimilarity> topSimilarity(int top, File... corpusFile) {
+        Preconditions.checkArgument(top > 0, "top must greater than 0");
         List<Document> documentList = analyzeAll(corpusFile);
-        PriorityQueue<DocSimilarity> result = new PriorityQueue<>();
+        Queue<DocSimilarity> queue = new PriorityQueue<>(top);
         for (int i = 0; i < documentList.size() - 1; i++) {
             for (int j = i + 1; j < documentList.size(); j++) {
                 DocSimilarity docSimilarity = similarity(documentList.get(i), documentList.get(j));
-                result.add(docSimilarity);
+                if (queue.size() < top || queue.peek().getScore() < docSimilarity.getScore()) {
+                    if (queue.size() == top)
+                        queue.remove();
+                    queue.add(docSimilarity);
+                }
             }
         }
-        return result.stream().limit(top).collect(Collectors.toList());
+        List<DocSimilarity> result = new ArrayList<>(queue);
+        Collections.reverse(result);
+        return result;
     }
 }

@@ -9,7 +9,7 @@ import java.util.Objects;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Keyword {
+public class Keyword implements Comparable<Keyword> {
     private String term;
     private double weight;
 
@@ -24,5 +24,10 @@ public class Keyword {
     @Override
     public int hashCode() {
         return Objects.hash(term);
+    }
+
+    @Override
+    public int compareTo(Keyword o) {
+        return Double.compare(weight, o.getWeight());
     }
 }

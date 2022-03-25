@@ -13,8 +13,8 @@ public class TFIDFCalculatorTest {
 
     @Test
     public void testTfIdf() {
-        Document doc1 = new Document("doc1", CollUtil.newArrayList("我", "爱", "北京"), null);
-        Document doc2 = new Document("doc2", CollUtil.newArrayList("我", "爱", "coding"), null);
+        Document doc1 = new Document("doc1", "", CollUtil.newArrayList("我", "爱", "北京"), null);
+        Document doc2 = new Document("doc2", "", CollUtil.newArrayList("我", "爱", "coding"), null);
         List<Document> corpus = Arrays.asList(doc1, doc2);
         double weight1 = calculator.tfIdf(doc1, corpus, "北京");
         double weight2 = calculator.tfIdf(doc2, corpus, "coding");
