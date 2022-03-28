@@ -38,10 +38,10 @@ public class DefaultTFIDFProcessor implements TFIDFProcessor {
     @Override
     public Document analyze(String docName, File... corpusFile) {
         List<Document> documentList = loadCorpusData(corpusFile);
-        return this.analyze(docName, documentList);
+        return this.analyzeKeywords(docName, documentList);
     }
 
-    private Document analyze(String docName, List<Document> documentList) {
+    private Document analyzeKeywords(String docName, List<Document> documentList) {
         for (Document document : documentList) {
             if (!document.getName().equals(docName)) {
                 continue;
@@ -83,8 +83,8 @@ public class DefaultTFIDFProcessor implements TFIDFProcessor {
     @Override
     public DocSimilarity similarity(String firstDocName, String secondDocName, File... corpusFile) {
         List<Document> documentList = loadCorpusData(corpusFile);
-        Document first = analyze(firstDocName, documentList);
-        Document second = analyze(secondDocName, documentList);
+        Document first = analyzeKeywords(firstDocName, documentList);
+        Document second = analyzeKeywords(secondDocName, documentList);
         return similarity(first, second);
     }
 
