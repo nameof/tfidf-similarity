@@ -98,8 +98,6 @@ public class DefaultTFIDFProcessor implements TFIDFProcessor {
                 }
             }
         }
-        List<DocSimilarity> result = new ArrayList<>(queue);
-        Collections.reverse(result);
-        return result;
+        return queue.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
     }
 }
