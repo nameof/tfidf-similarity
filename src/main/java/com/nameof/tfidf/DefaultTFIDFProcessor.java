@@ -1,17 +1,15 @@
 package com.nameof.tfidf;
 
-import cn.hutool.core.io.FileUtil;
 import com.google.common.base.Preconditions;
 import com.nameof.tfidf.bean.DocSimilarity;
 import com.nameof.tfidf.bean.Document;
 import com.nameof.tfidf.bean.Keyword;
+import com.nameof.tfidf.data.DataLoader;
 import com.nameof.tfidf.exception.TFIDFException;
 import com.nameof.tfidf.text.DefaultTextProcessor;
 import com.nameof.tfidf.text.TextProcessor;
 import com.nameof.tfidf.text.handler.SimpleTermHandler;
 
-import java.io.File;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -27,8 +25,8 @@ public class DefaultTFIDFProcessor implements TFIDFProcessor {
     private Function<Set<Keyword>, Set<String>> keywordsExtractor = keywords -> keywords.stream().map(Keyword::getTerm).collect(Collectors.toSet());
 
     @Override
-    public List<Document> analyzeAll(File... corpusFile) {
-        List<Document> documentList = loadCorpusData(corpusFile);
+    public List<Document> analyzeAll(DataLoader dataLoader) {
+        List<Document> documentList = loadCorpusData(dataLoader);
         for (Document document : documentList) {
             analyzeKeywords(document, documentList);
         }
@@ -36,8 +34,8 @@ public class DefaultTFIDFProcessor implements TFIDFProcessor {
     }
 
     @Override
-    public Document analyze(String docName, File... corpusFile) {
-        List<Document> documentList = loadCorpusData(corpusFile);
+    public Document analyze(String docName, DataLoader dataLoader) {
+        List<Document> documentList = loadCorpusData(dataLoader);
         return this.analyzeKeywords(docName, documentList);
     }
 
@@ -61,28 +59,20 @@ public class DefaultTFIDFProcessor implements TFIDFProcessor {
         }
     }
 
-    private List<Document> loadCorpusData(File[] corpusFile) {
-        Map<String, String> corpus = new HashMap<>(corpusFile.length);
-        for (File file : corpusFile) {
-            corpus.put(file.getName(), FileUtil.readString(file, StandardCharsets.UTF_8));
-        }
-
-        List<Document> documentList = new ArrayList<>(corpus.size());
-        for (Map.Entry<String, String> entry : corpus.entrySet()) {
-            Document document = new Document(entry.getKey(), entry.getValue(), textProcessor.segment(entry.getValue()), new HashSet<>());
-            documentList.add(document);
-        }
-        return documentList;
+    private List<Document> loadCorpusData(DataLoader dataLoader) {
+        return dataLoader.loadCorpusText().stream()
+                .map(tuple -> new Document(tuple.getLeft(), tuple.getRight(), textProcessor.segment(tuple.getRight()), new HashSet<>()))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public Set<Keyword> keyword(String docName, File... corpusFile) {
-        return analyze(docName, corpusFile).getKeywords();
+    public Set<Keyword> keyword(String docName, DataLoader dataLoader) {
+        return analyze(docName, dataLoader).getKeywords();
     }
 
     @Override
-    public DocSimilarity similarity(String firstDocName, String secondDocName, File... corpusFile) {
-        List<Document> documentList = loadCorpusData(corpusFile);
+    public DocSimilarity similarity(String firstDocName, String secondDocName, DataLoader dataLoader) {
+        List<Document> documentList = loadCorpusData(dataLoader);
         Document first = analyzeKeywords(firstDocName, documentList);
         Document second = analyzeKeywords(secondDocName, documentList);
         return similarity(first, second);
@@ -94,9 +84,9 @@ public class DefaultTFIDFProcessor implements TFIDFProcessor {
     }
 
     @Override
-    public List<DocSimilarity> topSimilarity(int top, File... corpusFile) {
+    public List<DocSimilarity> topSimilarity(int top, DataLoader dataLoader) {
         Preconditions.checkArgument(top > 0, "top must greater than 0");
-        List<Document> documentList = analyzeAll(corpusFile);
+        List<Document> documentList = analyzeAll(dataLoader);
         Queue<DocSimilarity> queue = new PriorityQueue<>(top);
         for (int i = 0; i < documentList.size() - 1; i++) {
             for (int j = i + 1; j < documentList.size(); j++) {
