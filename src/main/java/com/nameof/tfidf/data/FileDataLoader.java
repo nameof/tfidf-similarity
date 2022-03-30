@@ -7,7 +7,9 @@ import com.nameof.tfidf.exception.DataLoadException;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class FileDataLoader implements DataLoader {
     private final String corpusDir;
@@ -23,7 +25,20 @@ public class FileDataLoader implements DataLoader {
     }
 
     @Override
-    public String loadDocumentText(String docName) {
+    public Set<String> getDocNames() {
+        return new HashSet<>(FileUtil.listFileNames(corpusDir));
+    }
+
+    @Override
+    public List<Tuple2<String, String>> loadCorpusText() {
+        List<Tuple2<String, String>> result = new ArrayList<>();
+        for (String fileName : FileUtil.listFileNames(corpusDir)) {
+            result.add(new Tuple2<>(fileName, loadDocumentText(fileName)));
+        }
+        return result;
+    }
+
+    private String loadDocumentText(String docName) {
         File file = new File(corpusDir, docName);
         if (!file.exists()) {
             throw new DataLoadException("file not found");
@@ -32,17 +47,5 @@ public class FileDataLoader implements DataLoader {
             throw new DataLoadException("file is directory");
         }
         return FileUtil.readString(file, StandardCharsets.UTF_8);
-    }
-
-    @Override
-    public List<Tuple2<String, String>> loadCorpusText() {
-        List<Tuple2<String, String>> result = new ArrayList<>();
-        for (File file : FileUtil.ls(corpusDir)) {
-            if (file.isDirectory()) {
-                continue;
-            }
-            result.add(new Tuple2<>(file.getName(), loadDocumentText(file.getName())));
-        }
-        return result;
     }
 }

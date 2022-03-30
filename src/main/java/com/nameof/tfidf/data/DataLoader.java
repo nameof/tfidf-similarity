@@ -1,15 +1,15 @@
 package com.nameof.tfidf.data;
 
 import com.nameof.tfidf.bean.Tuple2;
+
 import java.util.List;
+import java.util.Set;
 
 public interface DataLoader {
     /**
-     * 加载指定名称的文档数据
-     * @param docName
-     * @return
+     * 获取语料库所有文档名称
      */
-    String loadDocumentText(String docName);
+    Set<String> getDocNames();
 
     /**
      * 加载整个语料库文档数据
