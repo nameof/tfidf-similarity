@@ -9,20 +9,26 @@ import com.nameof.tfidf.exception.TFIDFException;
 import com.nameof.tfidf.text.DefaultTextProcessor;
 import com.nameof.tfidf.text.TextProcessor;
 import com.nameof.tfidf.text.handler.SimpleTermHandler;
+import lombok.NoArgsConstructor;
 
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@NoArgsConstructor
 public class DefaultTFIDFProcessor implements TFIDFProcessor {
+
+    private final TFIDFCalculator tfidfCalculator = new TFIDFCalculator();
+
+    private final Function<Set<Keyword>, Set<String>> keywordsExtractor = keywords -> keywords.stream().map(Keyword::getTerm).collect(Collectors.toSet());
 
     private TextProcessor textProcessor = DefaultTextProcessor.builder()
             .termHandlers(Collections.singletonList(new SimpleTermHandler()))
             .build();
 
-    private TFIDFCalculator tfidfCalculator = new TFIDFCalculator();
-
-    private Function<Set<Keyword>, Set<String>> keywordsExtractor = keywords -> keywords.stream().map(Keyword::getTerm).collect(Collectors.toSet());
+    public DefaultTFIDFProcessor(TextProcessor textProcessor) {
+        this.textProcessor = textProcessor;
+    }
 
     @Override
     public List<Document> analyzeAll(DataLoader dataLoader) {
