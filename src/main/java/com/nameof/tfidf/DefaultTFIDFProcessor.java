@@ -12,6 +12,8 @@ import com.nameof.tfidf.text.handler.SimpleTermHandler;
 import lombok.NoArgsConstructor;
 
 import java.util.*;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinTask;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -33,9 +35,7 @@ public class DefaultTFIDFProcessor implements TFIDFProcessor {
     @Override
     public List<Document> analyzeAll(DataLoader dataLoader) {
         List<Document> documentList = loadCorpusData(dataLoader);
-        for (Document document : documentList) {
-            analyzeKeywords(document, documentList);
-        }
+        documentList.parallelStream().forEach(document -> analyzeKeywords(document, documentList));
         return documentList;
     }
 
@@ -66,7 +66,7 @@ public class DefaultTFIDFProcessor implements TFIDFProcessor {
     }
 
     private List<Document> loadCorpusData(DataLoader dataLoader) {
-        return dataLoader.loadCorpusText().stream()
+        return dataLoader.loadCorpusText().parallelStream()
                 .map(tuple -> new Document(tuple.getLeft(), tuple.getRight(), textProcessor.segment(tuple.getRight()), new HashSet<>()))
                 .collect(Collectors.toList());
     }
@@ -93,15 +93,27 @@ public class DefaultTFIDFProcessor implements TFIDFProcessor {
     public List<DocSimilarity> topSimilarity(int top, DataLoader dataLoader) {
         Preconditions.checkArgument(top > 0, "top must greater than 0");
         List<Document> documentList = analyzeAll(dataLoader);
-        Queue<DocSimilarity> queue = new PriorityQueue<>(top);
+        List<ForkJoinTask<DocSimilarity>> taskList = new ArrayList<>();
         for (int i = 0; i < documentList.size() - 1; i++) {
             for (int j = i + 1; j < documentList.size(); j++) {
-                DocSimilarity docSimilarity = similarity(documentList.get(i), documentList.get(j));
-                if (queue.size() < top || queue.peek().getScore() < docSimilarity.getScore()) {
-                    if (queue.size() == top)
-                        queue.remove();
-                    queue.add(docSimilarity);
-                }
+                Document first = documentList.get(i);
+                Document second = documentList.get(j);
+                ForkJoinTask<DocSimilarity> task = ForkJoinPool.commonPool().submit(() -> similarity(first, second));
+                taskList.add(task);
+            }
+        }
+        Queue<DocSimilarity> queue = new PriorityQueue<>(top);
+        for (ForkJoinTask<DocSimilarity> task : taskList) {
+            DocSimilarity docSimilarity = null;
+            try {
+                docSimilarity = task.get();
+            } catch (Exception e) {
+                throw new TFIDFException("计算失败", e);
+            }
+            if (queue.size() < top || queue.peek().getScore() < docSimilarity.getScore()) {
+                if (queue.size() == top)
+                    queue.remove();
+                queue.add(docSimilarity);
             }
         }
         return queue.stream().sorted(Comparator.reverseOrder()).collect(Collectors.toList());
