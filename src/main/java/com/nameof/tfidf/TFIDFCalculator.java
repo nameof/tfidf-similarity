@@ -8,7 +8,7 @@ public class TFIDFCalculator {
     public double tf(Document doc, String term) {
         double result = 0;
         for (String current : doc.getTermList()) {
-            if (term.equalsIgnoreCase(current))
+            if (term.equals(current))
                 result++;
         }
         return result / doc.getTermList().size();
@@ -18,7 +18,7 @@ public class TFIDFCalculator {
         double n = 0;
         for (Document doc : corpus) {
             for (String current : doc.getTermList()) {
-                if (term.equalsIgnoreCase(current)) {
+                if (term.equals(current)) {
                     n++;
                     break;
                 }
