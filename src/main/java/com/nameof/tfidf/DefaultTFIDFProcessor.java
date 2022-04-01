@@ -57,18 +57,21 @@ public class DefaultTFIDFProcessor implements TFIDFProcessor {
     }
 
     private void analyzeKeywords(Document document, List<Document> documentList) {
+        Set<Keyword> keywords = new HashSet<>();
         for (String term : document.getTermList()) {
             double weight = tfidfCalculator.tfIdf(document, documentList, term);
             if (weight > 0.0) {
-                document.getKeywords().add(new Keyword(term, weight));
+                keywords.add(new Keyword(term, weight));
             }
         }
+        document.setKeywords(keywords);
     }
 
     private List<Document> loadCorpusData(DataLoader dataLoader) {
-        return dataLoader.loadCorpusText().parallelStream()
-                .map(tuple -> new Document(tuple.getLeft(), tuple.getRight(), textProcessor.segment(tuple.getRight()), new HashSet<>()))
+        List<Document> result = dataLoader.loadCorpusText().parallelStream()
+                .map(tuple -> new Document(tuple.getLeft(), tuple.getRight(), textProcessor.segment(tuple.getRight()), null))
                 .collect(Collectors.toList());
+        return Collections.unmodifiableList(result);
     }
 
     @Override

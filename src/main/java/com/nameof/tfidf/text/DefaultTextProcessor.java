@@ -5,6 +5,7 @@ import com.nameof.tfidf.text.handler.TermHandler;
 import lombok.Builder;
 import org.apache.commons.text.similarity.CosineSimilarity;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,7 +27,7 @@ public class DefaultTextProcessor implements TextProcessor {
                 termStream = termStream.filter(termHandler::filter).map(termHandler::map);
             }
         }
-        return termStream.collect(Collectors.toList());
+        return Collections.unmodifiableList(termStream.collect(Collectors.toList()));
     }
 
     @Override
