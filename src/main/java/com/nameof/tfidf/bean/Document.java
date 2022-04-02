@@ -18,7 +18,7 @@ public class Document {
     private List<String> termList;
     private Set<Keyword> keywords;
 
-    private Set<String> getTopKeywords(int top) {
+    public Set<String> getTopKeywords(int top) {
         return keywords.stream()
                 .sorted(Comparator.reverseOrder())
                 .limit(top)
