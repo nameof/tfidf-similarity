@@ -38,3 +38,5 @@
     DataLoader dataLoader = new FileDataLoader(corpusDir);
     processor.topSimilarity(5, dataLoader).forEach(System.out::println);
 ```
+下面是计算三国演义top1相似度的结果
+<img src="https://github.com/nameof/tfidf-similarity/blob/dev/image/ZT0G2RN7.png"/>
