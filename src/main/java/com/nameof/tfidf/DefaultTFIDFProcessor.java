@@ -6,10 +6,13 @@ import com.nameof.tfidf.bean.Document;
 import com.nameof.tfidf.bean.Keyword;
 import com.nameof.tfidf.data.DataLoader;
 import com.nameof.tfidf.exception.TFIDFException;
+import com.nameof.tfidf.similarity.SimilarityCalculator;
+import com.nameof.tfidf.similarity.SimpleSimilarityCalculator;
 import com.nameof.tfidf.text.DefaultTextProcessor;
 import com.nameof.tfidf.text.TextProcessor;
 import com.nameof.tfidf.text.handler.SimpleTermHandler;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.*;
 import java.util.concurrent.ForkJoinPool;
@@ -22,13 +25,15 @@ public class DefaultTFIDFProcessor implements TFIDFProcessor {
 
     private final TFIDFCalculator tfidfCalculator = new TFIDFCalculator();
 
-    private final Function<Set<Keyword>, Set<String>> keywordsExtractor = keywords -> keywords.stream().map(Keyword::getTerm).collect(Collectors.toSet());
-
     private TextProcessor textProcessor = DefaultTextProcessor.builder()
             .termHandlers(Collections.singletonList(new SimpleTermHandler()))
             .build();
 
+    @Setter
+    private SimilarityCalculator similarityCalculator = new SimpleSimilarityCalculator();
+
     public DefaultTFIDFProcessor(TextProcessor textProcessor) {
+        Preconditions.checkNotNull(textProcessor);
         this.textProcessor = textProcessor;
     }
 
@@ -88,7 +93,7 @@ public class DefaultTFIDFProcessor implements TFIDFProcessor {
     }
 
     private DocSimilarity similarity(Document first, Document second) {
-        double score = textProcessor.similarity(keywordsExtractor.apply(first.getKeywords()), keywordsExtractor.apply(second.getKeywords()));
+        double score = similarityCalculator.calculate(first.getKeywords(), second.getKeywords());
         return new DocSimilarity(first, second, score);
     }
 

@@ -24,15 +24,4 @@ public class DefaultTextProcessorTest {
             Assert.assertEquals(term, term.toLowerCase());
         }
     }
-
-    @Test
-    public void testSimilarity() {
-        Set<String> terms1 = new HashSet<>(processor.segment(text));
-        Set<String> terms2 = new HashSet<>(processor.segment(text));
-        double similarity = processor.similarity(terms1, terms2);
-        Assert.assertEquals(1.0, similarity, 0.00000001);
-
-        terms2.add(IdUtil.simpleUUID());
-        Assert.assertTrue(processor.similarity(terms1, terms2) < 1.0);
-    }
 }
