@@ -1,24 +1,28 @@
 package com.nameof.tfidf.similarity;
 
+import cn.hutool.core.collection.CollectionUtil;
 import com.nameof.tfidf.bean.Keyword;
+import lombok.NoArgsConstructor;
 
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  * 基于关键词的tfidf权重值构造向量，计算余弦相似度
  */
-public class TfidfSimilarityCalculator implements SimilarityCalculator {
-    private final Function<Set<Keyword>, Set<String>> keywordsExtractor = keywords -> keywords.stream().map(Keyword::getTerm).collect(Collectors.toSet());
+@NoArgsConstructor
+public class TfidfSimilarityCalculator extends AbstractSimilarityCalculator {
+
+    public TfidfSimilarityCalculator(int limit) {
+        super(limit);
+    }
 
     @Override
     public double calculate(Set<Keyword> keywords1, Set<Keyword> keywords2) {
-        keywords1 = sortByWeight(keywords1);
-        keywords2 = sortByWeight(keywords2);
+        keywords1 = sortByWeightAndLimit(keywords1);
+        keywords2 = sortByWeightAndLimit(keywords2);
 
-        Set<String> bagOfWord = keywordsExtractor.apply(keywords1);
-        bagOfWord.addAll(keywordsExtractor.apply(keywords2));
+        Collection<String> bagOfWord = CollectionUtil.union(keywordsExtractor.apply(keywords1), keywordsExtractor.apply(keywords2));
 
         Map<String, Double> map1 = mapKeyword(keywords1);
         Map<String, Double> map2 = mapKeyword(keywords2);
@@ -34,10 +38,6 @@ public class TfidfSimilarityCalculator implements SimilarityCalculator {
 
     private Map<String, Double> mapKeyword(Set<Keyword> keywords) {
         return keywords.stream().collect(Collectors.toMap(Keyword::getTerm, Keyword::getWeight));
-    }
-
-    private LinkedHashSet<Keyword> sortByWeight(Set<Keyword> keywords) {
-        return keywords.stream().sorted(Comparator.comparing(Keyword::getWeight).reversed()).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public static double cosineSimilarity(List<Double> vectorA, List<Double> vectorB) {
