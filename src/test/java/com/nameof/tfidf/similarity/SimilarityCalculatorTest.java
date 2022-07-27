@@ -1,10 +1,15 @@
 package com.nameof.tfidf.similarity;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
 import com.nameof.tfidf.bean.Keyword;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Set;
 
 public class SimilarityCalculatorTest {

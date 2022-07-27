@@ -48,4 +48,23 @@ public class DefaultTFIDFProcessorTest {
         processor.topSimilarity(-1, dataLoader);
     }
 
+    @Test
+    public void testParallelCorrect() {
+        processor.setParallel(false);
+        List<DocSimilarity> serial = processor.topSimilarity(10, dataLoader);
+
+        processor.setParallel(true);
+        List<DocSimilarity> parallel = processor.topSimilarity(10, dataLoader);
+
+        Assert.assertEquals(serial.size(), parallel.size());
+        for (int i = 0; i < serial.size(); i++) {
+            DocSimilarity d1 = serial.get(i);
+            DocSimilarity d2 = parallel.get(i);
+            Assert.assertEquals(d1.getScore(), d2.getScore(), 0.000001);
+            Assert.assertEquals(d1.getFirst().getName(), d2.getFirst().getName());
+            Assert.assertEquals(d1.getSecond().getName(), d2.getSecond().getName());
+        }
+
+        processor.setParallel(false);
+    }
 }
