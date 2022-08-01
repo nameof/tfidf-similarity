@@ -25,7 +25,7 @@ public class TFIDFCalculator {
                 n.addAndGet(1);
             }
         });
-        return Math.log(corpus.size() / n.doubleValue());
+        return Math.log10(corpus.size() / n.doubleValue());
     }
 
     public double tfIdf(Document doc, List<Document> corpus, String term) {
