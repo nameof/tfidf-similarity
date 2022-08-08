@@ -28,13 +28,6 @@ public class TFIDFCalculatorPerformanceTest {
         processor.analyzeAll(dataLoader);
     }
 
-    @Benchmark
-    public void testParallel() {
-        DefaultTFIDFProcessor processor = new DefaultTFIDFProcessor();
-        processor.setParallel(true);
-        processor.analyzeAll(dataLoader);
-    }
-
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(TFIDFCalculatorPerformanceTest.class.getSimpleName())

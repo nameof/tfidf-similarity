@@ -5,7 +5,6 @@ import com.google.common.base.Preconditions;
 import com.nameof.tfidf.bean.DocSimilarity;
 import com.nameof.tfidf.bean.Document;
 import com.nameof.tfidf.bean.Keyword;
-import com.nameof.tfidf.bean.Tuple2;
 import com.nameof.tfidf.data.DataLoader;
 import com.nameof.tfidf.exception.TFIDFException;
 import com.nameof.tfidf.similarity.SimilarityCalculator;
@@ -19,9 +18,7 @@ import lombok.Setter;
 import java.util.*;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ForkJoinTask;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @NoArgsConstructor
 public class DefaultTFIDFProcessor implements TFIDFProcessor {
@@ -31,9 +28,6 @@ public class DefaultTFIDFProcessor implements TFIDFProcessor {
     private TextProcessor textProcessor = DefaultTextProcessor.builder()
             .termHandlers(Collections.singletonList(new SimpleTermHandler()))
             .build();
-
-    @Setter
-    private boolean parallel = false;
 
     @Setter
     private SimilarityCalculator similarityCalculator = new SimpleSimilarityCalculator();
@@ -46,8 +40,7 @@ public class DefaultTFIDFProcessor implements TFIDFProcessor {
     @Override
     public List<Document> analyzeAll(DataLoader dataLoader) {
         List<Document> documentList = loadCorpusData(dataLoader);
-        Stream<Document> documentStream = parallel ? documentList.parallelStream() : documentList.stream();
-        documentStream.forEach(document -> analyzeKeywords(document, documentList));
+        documentList.parallelStream().forEach(document -> analyzeKeywords(document, documentList));
         return documentList;
     }
 
@@ -70,9 +63,8 @@ public class DefaultTFIDFProcessor implements TFIDFProcessor {
 
     private void analyzeKeywords(Document document, List<Document> documentList) {
         Set<Keyword> keywords = new ConcurrentHashSet<>();
-        Stream<String> stream = parallel ? document.getTermList().parallelStream() : document.getTermList().stream();
-        stream.forEach(term -> {
-            double weight = tfidfCalculator.tfIdf(document, documentList, term, parallel);
+        document.getTermList().parallelStream().forEach(term -> {
+            double weight = tfidfCalculator.tfIdf(document, documentList, term);
             if (weight > 0.0) {
                 keywords.add(new Keyword(term, weight));
             }
@@ -81,8 +73,7 @@ public class DefaultTFIDFProcessor implements TFIDFProcessor {
     }
 
     private List<Document> loadCorpusData(DataLoader dataLoader) {
-        Stream<Tuple2<String, String>> corpusContentStream = parallel ? dataLoader.loadCorpusText().parallelStream() : dataLoader.loadCorpusText().stream();
-        List<Document> result = corpusContentStream
+        List<Document> result = dataLoader.loadCorpusText().parallelStream()
                 .map(tuple -> new Document(tuple.getLeft(), tuple.getRight(), textProcessor.segment(tuple.getRight()), null))
                 .collect(Collectors.toList());
         return Collections.unmodifiableList(result);
