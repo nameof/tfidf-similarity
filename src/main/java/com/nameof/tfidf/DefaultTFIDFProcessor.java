@@ -118,6 +118,9 @@ public class DefaultTFIDFProcessor implements TFIDFProcessor {
             } catch (Exception e) {
                 throw new TFIDFException("计算失败", e);
             }
+            if (docSimilarity.getScore() == 0.0) {
+                continue;
+            }
             if (queue.size() < top || queue.peek().getScore() < docSimilarity.getScore()) {
                 if (queue.size() == top)
                     queue.remove();
