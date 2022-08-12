@@ -14,11 +14,11 @@ import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class FileDataLoaderTest {
+public class TextFileDataLoaderTest {
 
     @Test(expected = DataLoadException.class)
     public void testDirMissing() {
-        new FileDataLoader(IdUtil.simpleUUID());
+        new TextFileDataLoader(IdUtil.simpleUUID());
     }
 
     @Test
@@ -29,8 +29,8 @@ public class FileDataLoaderTest {
         FileUtil.writeString(text, new File(dir, fileName), StandardCharsets.UTF_8);
 
         try {
-            FileDataLoader loader = new FileDataLoader(dir);
-            Method loadDocumentText = PowerMockito.method(FileDataLoader.class, "loadDocumentText", String.class);
+            TextFileDataLoader loader = new TextFileDataLoader(dir);
+            Method loadDocumentText = PowerMockito.method(TextFileDataLoader.class, "loadDocumentText", String.class);
             Assert.assertEquals(loadDocumentText.invoke(loader, fileName), text);
         } finally {
             FileUtil.del(dir);
@@ -45,7 +45,7 @@ public class FileDataLoaderTest {
         FileUtil.writeString(text, new File(dir, IdUtil.simpleUUID()), StandardCharsets.UTF_8);
 
         try {
-            FileDataLoader loader = new FileDataLoader(dir);
+            TextFileDataLoader loader = new TextFileDataLoader(dir);
             List<Tuple2<String, String>> corpusText = loader.loadCorpusText();
             Assert.assertEquals(loader.getDocNames().size(), corpusText.size());
 

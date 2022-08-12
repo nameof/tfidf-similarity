@@ -3,7 +3,7 @@ package com.nameof.tfidf;
 import com.nameof.tfidf.bean.DocSimilarity;
 import com.nameof.tfidf.bean.Document;
 import com.nameof.tfidf.data.DataLoader;
-import com.nameof.tfidf.data.FileDataLoader;
+import com.nameof.tfidf.data.TextFileDataLoader;
 import com.nameof.tfidf.similarity.TfidfSimilarityCalculator;
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,7 +13,7 @@ import java.util.List;
 
 public class DefaultTFIDFProcessorTest {
     DefaultTFIDFProcessor processor = new DefaultTFIDFProcessor();
-    DataLoader dataLoader = new FileDataLoader("C:\\Users\\at\\Desktop\\A");
+    DataLoader dataLoader = new TextFileDataLoader("C:\\Users\\at\\Desktop\\A");
 
     @Test
     public void testAnalyzeAll() {

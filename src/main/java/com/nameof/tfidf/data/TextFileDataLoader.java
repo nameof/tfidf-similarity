@@ -11,10 +11,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class FileDataLoader implements DataLoader {
+public class TextFileDataLoader implements DataLoader {
     private final String corpusDir;
 
-    public FileDataLoader(String corpusDir) {
+    public TextFileDataLoader(String corpusDir) {
         if (!FileUtil.exist(corpusDir)) {
             throw new DataLoadException("directory not exists");
         }

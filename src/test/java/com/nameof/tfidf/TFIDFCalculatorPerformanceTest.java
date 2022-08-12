@@ -2,7 +2,7 @@ package com.nameof.tfidf;
 
 
 import com.nameof.tfidf.data.DataLoader;
-import com.nameof.tfidf.data.FileDataLoader;
+import com.nameof.tfidf.data.TextFileDataLoader;
 import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 @OutputTimeUnit(TimeUnit.SECONDS)
 public class TFIDFCalculatorPerformanceTest {
 
-    DataLoader dataLoader = new FileDataLoader("C:\\Users\\at\\Desktop\\A");
+    DataLoader dataLoader = new TextFileDataLoader("C:\\Users\\at\\Desktop\\A");
 
     @Benchmark
     public void testSerial() {
