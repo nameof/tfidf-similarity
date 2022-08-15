@@ -17,10 +17,18 @@ public class TfidfSimilarityCalculator extends AbstractSimilarityCalculator {
         super(limit);
     }
 
+    public TfidfSimilarityCalculator(double minScore) {
+        super(minScore);
+    }
+
+    public TfidfSimilarityCalculator(int limit, double minScore) {
+        super(limit, minScore);
+    }
+
     @Override
     public double calculate(Set<Keyword> keywords1, Set<Keyword> keywords2) {
-        keywords1 = sortByWeightAndLimit(keywords1);
-        keywords2 = sortByWeightAndLimit(keywords2);
+        keywords1 = sortByWeightWithLimitAndMinScore(keywords1);
+        keywords2 = sortByWeightWithLimitAndMinScore(keywords2);
 
         Collection<String> bagOfWord = CollectionUtil.union(keywordsExtractor.apply(keywords1), keywordsExtractor.apply(keywords2));
 
@@ -41,6 +49,9 @@ public class TfidfSimilarityCalculator extends AbstractSimilarityCalculator {
     }
 
     public static double cosineSimilarity(List<Double> vectorA, List<Double> vectorB) {
+        if (vectorA.isEmpty() || vectorB.isEmpty()) {
+            return 0.0;
+        }
         double dotProduct = 0.0;
         double normA = 0.0;
         double normB = 0.0;

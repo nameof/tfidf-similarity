@@ -39,4 +39,16 @@ public class SimilarityCalculatorTest {
         double tfidfScore = tfidf.calculate(keywords1, keywords2);
         Assert.assertTrue(tfidfScore < simpleScore);
     }
+
+    @Test
+    public void testMinScore() {
+        SimilarityCalculator simple = new SimpleSimilarityCalculator(0.6);
+        SimilarityCalculator tfidf = new TfidfSimilarityCalculator(0.6);
+
+        double simpleScore = simple.calculate(keywords1, keywords2);
+        Assert.assertEquals(simpleScore, 0.0, 0.00000001);
+
+        double tfidfScore = tfidf.calculate(keywords1, keywords2);
+        Assert.assertEquals(tfidfScore, 0.0, 0.00000001);
+    }
 }

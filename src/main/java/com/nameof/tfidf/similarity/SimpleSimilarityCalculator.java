@@ -20,10 +20,18 @@ public class SimpleSimilarityCalculator extends AbstractSimilarityCalculator {
         super(limit);
     }
 
+    public SimpleSimilarityCalculator(double minScore) {
+        super(minScore);
+    }
+
+    public SimpleSimilarityCalculator(int limit, double minScore) {
+        super(limit, minScore);
+    }
+
     @Override
     public double calculate(Set<Keyword> keywords1, Set<Keyword> keywords2) {
-        keywords1 = sortByWeightAndLimit(keywords1);
-        keywords2 = sortByWeightAndLimit(keywords2);
+        keywords1 = sortByWeightWithLimitAndMinScore(keywords1);
+        keywords2 = sortByWeightWithLimitAndMinScore(keywords2);
         Map<CharSequence, Integer> vector1 = keywordsExtractor.apply(keywords1).stream().collect(Collectors.toMap(c -> c, c -> 1, Integer::sum));
         Map<CharSequence, Integer> vector2 = keywordsExtractor.apply(keywords2).stream().collect(Collectors.toMap(c -> c, c -> 1, Integer::sum));
         return COSINE_SIMILARITY.cosineSimilarity(vector1, vector2);
